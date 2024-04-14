@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+
+        <!--AUTOR Christofer Jose Carias Pena-->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notebook</title>
+    <style>
+        body {
+            background-color: #87CEEB;
+            margin: 0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .boton {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .boton:hover {
+            background-color: #FFB6C1;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .boton:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .boton-amarillo {
+            background-color: #FFD700; 
+        }
+
+        .temporizador {
+            background-color: #FF0000;
+        }
+
+        .boton-return {
+            background-color: #4169E1; 
+        }
+
+        .boton-refresh {
+            background-color: #00CED1; 
+        }
+
+        .boton-seleccionado {
+            background-color: #FF69B4;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="file" id="archivo" accept=".txt" style="display: none;">
+        <label for="archivo" class="boton boton-amarillo">File</label>
+        <button id="copiarContenido" class="boton">Copy</button>
+        <button id="refreshContenido" class="boton boton-refresh">Refresh</button>
+        <button id="returnContenido" class="boton boton-return">Return</button>
+        <button id="temporizadorBtn" class="boton temporizador">00:00</button>
+    </div>
+    <div>
+        <textarea id="contenidoArchivo" rows="23" cols="63"></textarea>
+    </div>
+
+    <script>
+        var temporizador;
+        var contenidoOriginal = "";
+        var contenidoBorrado = "";
+
+        function iniciarTemporizador() {
+            var minutos = 2;
+            var segundos = 0;
+
+            temporizador = setInterval(function() {
+                segundos--;
+                if (segundos < 0) {
+                    if (minutos === 0) {
+                        clearInterval(temporizador);
+                        document.getElementById('temporizadorBtn').textContent = '00:00';
+                  
+                        return;
+                    } else {
+                        minutos--;
+                        segundos = 59;
+                    }
+                }
+
+                var tiempoRestante = minutos.toString().padStart(2, '0') + ':' + segundos.toString().padStart(2, '0');
+                document.getElementById('temporizadorBtn').textContent = tiempoRestante;
+            }, 1000);
+        }
+
+        document.getElementById('temporizadorBtn').addEventListener('click', function() {
+            if (temporizador) {
+                clearInterval(temporizador);
+                temporizador = null;
+                document.getElementById('temporizadorBtn').textContent = '00:00';
+            } else {
+                iniciarTemporizador();
+            }
+        });
+
+        document.getElementById('archivo').addEventListener('change', function(event) {
+            var archivo = event.target.files[0];
+            var lector = new FileReader();
+
+            lector.onload = function() {
+                contenidoOriginal = lector.result;
+                document.getElementById('contenidoArchivo').value = contenidoOriginal;
+            };
+
+            if (archivo) {
+                lector.readAsText(archivo);
+            }
+        });
+
+        document.getElementById('copiarContenido').addEventListener('click', function() {
+            var contenido = document.getElementById('contenidoArchivo').value;
+            navigator.clipboard.writeText(contenido)
+                .catch(function() {
+                    alert('Error al copiar el contenido.');
+                });
+        });
+
+        document.getElementById('refreshContenido').addEventListener('click', function() {
+            contenidoBorrado = document.getElementById('contenidoArchivo').value;
+            document.getElementById('contenidoArchivo').value = contenidoOriginal;
+        });
+
+        document.getElementById('returnContenido').addEventListener('click', function() {
+            document.getElementById('contenidoArchivo').value = contenidoBorrado;
+        });
+
+        var botones = document.querySelectorAll('.boton');
+        botones.forEach(function(boton) {
+            boton.addEventListener('click', function() {
+                botones.forEach(function(boton) {
+                    boton.classList.remove('boton-seleccionado');
+                });
+                this.classList.add('boton-seleccionado');
+            });
+
+            boton.addEventListener('mouseover', function() {
+                this.style.backgroundColor = '#FFB6C1';
+            });
+
+            boton.addEventListener('mouseout', function() {
+                this.style.backgroundColor = '';
+            });
+        });
+    </script>
+</body>
+</html>
